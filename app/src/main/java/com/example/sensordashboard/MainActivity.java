@@ -1,100 +1,77 @@
 package com.example.sensordashboard;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.widget.TextView;
+
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
-import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    private SensorManager sensorManager;
+    TextView accelText, lightText, proximityText;
 
-    private Sensor accelerometer, lightSensor, proximitySensor;
-
-    private TextView accelData, lightData, proximityData;
+    SensorManager sensorManager;
+    Sensor accelerometer, lightSensor, proximitySensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        accelData = findViewById(R.id.accelData);
-        lightData = findViewById(R.id.lightData);
-        proximityData = findViewById(R.id.proximityData);
+        accelText = findViewById(R.id.accelText);
+        lightText = findViewById(R.id.lightText);
+        proximityText = findViewById(R.id.proximityText);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        if (sensorManager != null) {
-            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-            proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        }
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if (sensorManager == null) return;
-
-        // ✅ Accelerometer
-        if (accelerometer != null) {
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        } else {
-            accelData.setText("Accelerometer not available");
-        }
-
-        // ✅ Light Sensor
-        if (lightSensor != null) {
-            sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        } else {
-            lightData.setText("Light sensor not available");
-        }
-
-        // ✅ Proximity Sensor
-        if (proximitySensor != null) {
-            sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
-        } else {
-            proximityData.setText("Proximity sensor not available");
-        }
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (sensorManager != null) {
-            sensorManager.unregisterListener(this);
-        }
+        sensorManager.unregisterListener(this);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
 
-            accelData.setText("X: " + x + "\nY: " + y + "\nZ: " + z);
+            accelText.setText("Accelerometer:\nX: " + x + "\nY: " + y + "\nZ: " + z);
         }
 
-        if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+        if(event.sensor.getType() == Sensor.TYPE_LIGHT){
             float light = event.values[0];
-            lightData.setText(light + " lx");
+            lightText.setText("Light: " + light);
         }
 
-        if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+        if(event.sensor.getType() == Sensor.TYPE_PROXIMITY){
             float proximity = event.values[0];
-            proximityData.setText(proximity + " cm");
+            proximityText.setText("Proximity: " + proximity);
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Not required
+
     }
 }
